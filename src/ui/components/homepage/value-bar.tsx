@@ -15,7 +15,7 @@ export function ValueBar() {
 		{
 			icon: <Truck className="h-6 w-6 text-primary" />,
 			title: "Free Express Shipping",
-			description: "Enjoy complimentary express home delivery on all orders over $50.",
+			description: "Enjoy complimentary express home delivery on all orders over ₹1,000.",
 		},
 		{
 			icon: <ShieldCheck className="h-6 w-6 text-primary" />,

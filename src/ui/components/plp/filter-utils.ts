@@ -13,6 +13,7 @@
  */
 
 import type { ProductOrder, ProductOrderField, OrderDirection, ProductFilterInput } from "@/gql/graphql";
+import { formatPrice } from "@/config/locale";
 import { compareSizes } from "@/lib/sizes";
 import type { ProductCardData } from "./product-card";
 import type { FilterOption, ActiveFilter, SortOption } from "./filter-bar";
@@ -33,10 +34,10 @@ export interface CategoryOption {
 // ============================================================================
 
 export const STATIC_PRICE_RANGES = [
-	{ label: "Under $50", value: "0-50" },
-	{ label: "$50 - $100", value: "50-100" },
-	{ label: "$100 - $200", value: "100-200" },
-	{ label: "$200+", value: "200-" },
+	{ label: "Under ₹500", value: "0-500" },
+	{ label: "₹500 - ₹1,000", value: "500-1000" },
+	{ label: "₹1,000 - ₹2,000", value: "1000-2000" },
+	{ label: "₹2,000+", value: "2000-" },
 ] as const;
 
 /** Price ranges with count=0 for FilterBar compatibility */
@@ -244,7 +245,11 @@ export function buildActiveFilters(filters: {
 
 	if (filters.priceRange) {
 		const [min, max] = filters.priceRange.split("-");
-		const label = max ? `$${min} - $${max}` : `$${min}+`;
+		const minAmount = parseFloat(min) || 0;
+		const maxAmount = max ? parseFloat(max) : null;
+		const label = maxAmount
+			? `${formatPrice(minAmount, "INR")} - ${formatPrice(maxAmount, "INR")}`
+			: `${formatPrice(minAmount, "INR")}+`;
 		active.push({ key: "price", label: "Price", value: label });
 	}
 

@@ -37,28 +37,28 @@ describe("buildFilterVariables", () => {
 	});
 
 	it("builds price range filter with min and max", () => {
-		const result = buildFilterVariables({ priceRange: "50-100" });
-		expect(result).toEqual({ price: { gte: 50, lte: 100 } });
+		const result = buildFilterVariables({ priceRange: "500-1000" });
+		expect(result).toEqual({ price: { gte: 500, lte: 1000 } });
 	});
 
 	it("builds price range filter with min only (open-ended)", () => {
-		const result = buildFilterVariables({ priceRange: "200-" });
-		expect(result).toEqual({ price: { gte: 200 } });
+		const result = buildFilterVariables({ priceRange: "2000-" });
+		expect(result).toEqual({ price: { gte: 2000 } });
 	});
 
 	it("builds price range filter with 0 min", () => {
-		const result = buildFilterVariables({ priceRange: "0-50" });
-		expect(result).toEqual({ price: { gte: 0, lte: 50 } });
+		const result = buildFilterVariables({ priceRange: "0-500" });
+		expect(result).toEqual({ price: { gte: 0, lte: 500 } });
 	});
 
 	it("combines category and price filters", () => {
 		const result = buildFilterVariables({
 			categoryIds: ["cat-1"],
-			priceRange: "50-100",
+			priceRange: "500-1000",
 		});
 		expect(result).toEqual({
 			categories: ["cat-1"],
-			price: { gte: 50, lte: 100 },
+			price: { gte: 500, lte: 1000 },
 		});
 	});
 
@@ -359,22 +359,22 @@ describe("buildActiveFilters", () => {
 	});
 
 	it("builds price range filter with range", () => {
-		const result = buildActiveFilters({ priceRange: "50-100" });
+		const result = buildActiveFilters({ priceRange: "500-1000" });
 
-		expect(result).toEqual([{ key: "price", label: "Price", value: "$50 - $100" }]);
+		expect(result).toEqual([{ key: "price", label: "Price", value: "₹500.00 - ₹1,000.00" }]);
 	});
 
 	it("builds price range filter with open-ended max", () => {
-		const result = buildActiveFilters({ priceRange: "200-" });
+		const result = buildActiveFilters({ priceRange: "2000-" });
 
-		expect(result).toEqual([{ key: "price", label: "Price", value: "$200+" }]);
+		expect(result).toEqual([{ key: "price", label: "Price", value: "₹2,000.00+" }]);
 	});
 
 	it("combines all filter types", () => {
 		const result = buildActiveFilters({
 			colors: ["Black"],
 			sizes: ["M"],
-			priceRange: "50-100",
+			priceRange: "500-1000",
 		});
 
 		expect(result).toHaveLength(3);
@@ -391,14 +391,14 @@ describe("STATIC_PRICE_RANGES", () => {
 	});
 
 	it("has correct format", () => {
-		expect(STATIC_PRICE_RANGES[0]).toEqual({ label: "Under $50", value: "0-50" });
-		expect(STATIC_PRICE_RANGES[3]).toEqual({ label: "$200+", value: "200-" });
+		expect(STATIC_PRICE_RANGES[0]).toEqual({ label: "Under ₹500", value: "0-500" });
+		expect(STATIC_PRICE_RANGES[3]).toEqual({ label: "₹2,000+", value: "2000-" });
 	});
 
 	it("STATIC_PRICE_RANGES_WITH_COUNT adds count: 0", () => {
 		expect(STATIC_PRICE_RANGES_WITH_COUNT[0]).toEqual({
-			label: "Under $50",
-			value: "0-50",
+			label: "Under ₹500",
+			value: "0-500",
 			count: 0,
 		});
 	});
