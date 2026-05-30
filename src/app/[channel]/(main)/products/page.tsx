@@ -3,14 +3,15 @@ import { notFound } from "next/navigation";
 import { ProductListPaginatedDocument } from "@/gql/graphql";
 import { executePublicGraphQL } from "@/lib/graphql";
 import { getPaginatedListVariables } from "@/lib/utils";
-import { CategoryHero, transformToProductCard } from "@/ui/components/plp";
+import { CategoryHero } from "@/ui/components/plp/category-hero";
+import { transformToProductCard } from "@/ui/components/plp/utils";
 import { buildSortVariables, buildFilterVariables } from "@/ui/components/plp/filter-utils";
 import { resolveCategorySlugsToIds } from "@/ui/components/plp/filter-utils.server";
 import { ProductsPageClient } from "./products-client";
 
 export const metadata = {
-	title: "Products · Saleor Storefront example",
-	description: "All products in Saleor Storefront example",
+	title: "Products",
+	description: "All products from Exlynatural.",
 };
 
 type PageProps = {
@@ -43,7 +44,7 @@ export default async function Page(props: PageProps) {
 			{/* Static shell - renders immediately */}
 			<CategoryHero
 				title="All Products"
-				description="Discover our full collection of premium products."
+				description="Discover our full collection of natural wellness essentials."
 				breadcrumbs={breadcrumbs}
 			/>
 			{/* Dynamic content - streams in via Suspense */}

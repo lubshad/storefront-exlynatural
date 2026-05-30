@@ -13,6 +13,7 @@ const config = {
 		// (max 3 concurrent requests + 200ms delay between requests)
 	},
 	images: {
+		dangerouslyAllowLocalIP: process.env.NODE_ENV === "development",
 		remotePatterns: [
 			{
 				// Saleor Cloud CDN
@@ -49,18 +50,26 @@ const config = {
 							source: "/_next/static/chunks/:path*",
 							headers: [{ key: "Cache-Control", value: "no-store, must-revalidate" }],
 						},
+						{
+							source: "/_next/static/:path*",
+							headers: [{ key: "Cache-Control", value: "no-store, must-revalidate" }],
+						},
 					]
 				: []),
-			{
-				// Static assets - cache for 1 year (immutable with hash in filename)
-				source: "/_next/static/:path*",
-				headers: [
-					{
-						key: "Cache-Control",
-						value: "public, max-age=31536000, immutable",
-					},
-				],
-			},
+			...(isDev
+				? []
+				: [
+						{
+							// Static assets - cache for 1 year (immutable with hash in filename)
+							source: "/_next/static/:path*",
+							headers: [
+								{
+									key: "Cache-Control",
+									value: "public, max-age=31536000, immutable",
+								},
+							],
+						},
+					]),
 			{
 				// Public folder assets - cache for 1 month (logos, favicons, etc.)
 				source: "/(.*)\\.(ico|png|jpg|jpeg|gif|svg|webp|woff|woff2|webmanifest)",

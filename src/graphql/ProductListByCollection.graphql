@@ -17,6 +17,10 @@ query ProductListByCollection(
 			url
 			alt
 		}
+		metadata {
+			key
+			value
+		}
 		products(first: $first, after: $after, sortBy: $sortBy, filter: $filter) {
 			edges {
 				node {

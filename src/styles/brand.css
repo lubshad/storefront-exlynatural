@@ -1,6 +1,6 @@
 /**
  * ========================================
- * SALEOR STOREFRONT - DESIGN TOKENS
+ * EXLYNATURAL STOREFRONT - DESIGN TOKENS
  * ========================================
  *
  * This file defines the visual foundation of the storefront using
@@ -13,9 +13,9 @@
  * - Supported in all modern browsers
  *
  * Design System:
- * - Minimal e-commerce theme with warm neutrals
- * - Near-black for primary actions and headings
- * - Warm off-whites for backgrounds
+ * - Natural e-commerce theme with soft green-tinted neutrals
+ * - Deep green for primary actions and headings
+ * - Fresh leaf green for positive accents
  * - Red accent for destructive/sale indicators
  *
  * Typography:
@@ -28,35 +28,35 @@
  * ============================================ */
 :root {
 	/* --- Backgrounds --- */
-	--background: oklch(0.98 0.005 90); /* Page background - warm off-white */
+	--background: oklch(0.985 0.012 135); /* Page background - soft natural off-white */
 	--card: oklch(1 0 0); /* Card surfaces - pure white */
 	--popover: oklch(1 0 0); /* Popover/dropdown backgrounds */
-	--secondary: oklch(0.96 0.003 90); /* Secondary surfaces */
-	--muted: oklch(0.94 0.003 90); /* Muted/disabled backgrounds */
-	--accent: oklch(0.94 0.003 90); /* Accent backgrounds */
+	--secondary: oklch(0.955 0.015 135); /* Secondary surfaces */
+	--muted: oklch(0.935 0.012 135); /* Muted/disabled backgrounds */
+	--accent: oklch(0.93 0.06 135); /* Accent backgrounds */
 
 	/* --- Foregrounds (Text Colors) --- */
-	--foreground: oklch(0.12 0 0); /* Primary text - near black */
-	--card-foreground: oklch(0.12 0 0);
-	--popover-foreground: oklch(0.12 0 0);
-	--secondary-foreground: oklch(0.12 0 0);
-	--muted-foreground: oklch(0.45 0 0); /* Secondary/muted text */
-	--accent-foreground: oklch(0.12 0 0);
+	--foreground: oklch(0.2 0.045 150); /* Primary text - deep green */
+	--card-foreground: oklch(0.2 0.045 150);
+	--popover-foreground: oklch(0.2 0.045 150);
+	--secondary-foreground: oklch(0.2 0.045 150);
+	--muted-foreground: oklch(0.46 0.03 150); /* Secondary/muted text */
+	--accent-foreground: oklch(0.23 0.06 145);
 
 	/* --- Primary (CTA buttons, links) --- */
-	--primary: oklch(0.12 0 0); /* Near black */
+	--primary: oklch(0.43 0.13 150); /* Exlynatural deep green */
 	--primary-foreground: oklch(0.98 0 0); /* White text on primary */
 
 	/* --- Semantic Colors --- */
 	--destructive: oklch(0.55 0.2 25); /* Error/delete - red */
 	--destructive-foreground: oklch(0.98 0 0);
-	--success: oklch(0.55 0.15 145); /* Success - green */
-	--success-foreground: oklch(0.98 0 0);
+	--success: oklch(0.68 0.17 135); /* Success - leaf green */
+	--success-foreground: oklch(0.16 0.04 150);
 
 	/* --- Interactive Elements --- */
-	--border: oklch(0.9 0.003 90); /* Border color */
-	--input: oklch(0.9 0.003 90); /* Input borders */
-	--ring: oklch(0.12 0 0); /* Focus ring color */
+	--border: oklch(0.88 0.018 135); /* Border color */
+	--input: oklch(0.88 0.018 135); /* Input borders */
+	--ring: oklch(0.43 0.13 150); /* Focus ring color */
 
 	/* --- Layout --- */
 	--radius: 0.5rem; /* Base border radius (8px) */
@@ -87,33 +87,33 @@
  * ============================================ */
 .dark {
 	/* --- Backgrounds --- */
-	--background: oklch(0.12 0 0);
-	--card: oklch(0.16 0 0);
-	--popover: oklch(0.16 0 0);
-	--secondary: oklch(0.22 0 0);
-	--muted: oklch(0.22 0 0);
-	--accent: oklch(0.22 0 0);
+	--background: oklch(0.16 0.035 150);
+	--card: oklch(0.2 0.035 150);
+	--popover: oklch(0.2 0.035 150);
+	--secondary: oklch(0.26 0.035 150);
+	--muted: oklch(0.26 0.035 150);
+	--accent: oklch(0.3 0.07 145);
 
 	/* --- Foregrounds --- */
-	--foreground: oklch(0.98 0 0);
-	--card-foreground: oklch(0.98 0 0);
-	--popover-foreground: oklch(0.98 0 0);
-	--secondary-foreground: oklch(0.98 0 0);
-	--muted-foreground: oklch(0.65 0 0);
-	--accent-foreground: oklch(0.98 0 0);
+	--foreground: oklch(0.97 0.01 135);
+	--card-foreground: oklch(0.97 0.01 135);
+	--popover-foreground: oklch(0.97 0.01 135);
+	--secondary-foreground: oklch(0.97 0.01 135);
+	--muted-foreground: oklch(0.72 0.025 145);
+	--accent-foreground: oklch(0.97 0.01 135);
 
 	/* --- Primary --- */
-	--primary: oklch(0.98 0 0);
-	--primary-foreground: oklch(0.12 0 0);
+	--primary: oklch(0.78 0.16 135);
+	--primary-foreground: oklch(0.14 0.035 150);
 
 	/* --- Semantic Colors --- */
 	--destructive: oklch(0.45 0.18 25);
 	--destructive-foreground: oklch(0.98 0 0);
-	--success: oklch(0.65 0.15 145);
-	--success-foreground: oklch(0.12 0 0);
+	--success: oklch(0.78 0.16 135);
+	--success-foreground: oklch(0.14 0.035 150);
 
 	/* --- Interactive Elements --- */
-	--border: oklch(0.26 0 0);
-	--input: oklch(0.26 0 0);
-	--ring: oklch(0.98 0 0);
+	--border: oklch(0.33 0.035 150);
+	--input: oklch(0.33 0.035 150);
+	--ring: oklch(0.78 0.16 135);
 }

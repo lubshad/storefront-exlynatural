@@ -1,0 +1,22 @@
+query CollectionsGetList($first: Int!) {
+	collections(first: $first) {
+		edges {
+			node {
+				id
+				name
+				slug
+				backgroundImage {
+					url
+					alt
+				}
+				metadata {
+					key
+					value
+				}
+				products {
+					totalCount
+				}
+			}
+		}
+	}
+}

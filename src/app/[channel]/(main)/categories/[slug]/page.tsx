@@ -6,7 +6,9 @@ import { executePublicGraphQL } from "@/lib/graphql";
 import { CACHE_PROFILES, applyCacheProfile } from "@/lib/cache-manifest";
 import { getPaginatedListVariables } from "@/lib/utils";
 import { parseEditorJSToText } from "@/lib/editorjs";
-import { CategoryHero, transformToProductCard } from "@/ui/components/plp";
+import { CategoryHero } from "@/ui/components/plp/category-hero";
+import { extractResponsiveHeroImages } from "@/ui/components/plp/responsive-hero-utils";
+import { transformToProductCard } from "@/ui/components/plp/utils";
 import { buildSortVariables, buildFilterVariables } from "@/ui/components/plp/filter-utils";
 import { CategoryPageClient } from "./client";
 
@@ -90,7 +92,9 @@ async function CategoryContent({
 				title={category.name}
 				description={plainDescription}
 				backgroundImage={category.backgroundImage?.url}
+				responsiveImages={extractResponsiveHeroImages(category.metadata, category.backgroundImage?.url)}
 				breadcrumbs={breadcrumbs}
+				showContent={false}
 			/>
 			<Suspense fallback={<ProductsGridSkeleton />}>
 				<CategoryProducts params={paramsPromise} searchParams={searchParams} />

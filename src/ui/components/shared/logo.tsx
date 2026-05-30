@@ -4,12 +4,12 @@
  * Single source of truth for the storefront logo.
  * Uses external SVG files for better caching and smaller bundle size.
  *
- * - /public/logo.svg: dark logo for light backgrounds
- * - /public/logo-dark.svg: light logo for dark backgrounds
+ * - /public/logo.svg: Exlynatural logo for light backgrounds
+ * - /public/logo-dark.svg: Exlynatural logo for dark backgrounds
  *
  * @example
- * <Logo className="h-7 w-auto" />                    // Header (auto light/dark)
- * <Logo className="h-7 w-auto" inverted />          // Footer (inverted for dark bg)
+ * <Logo className="h-10 w-auto" />                   // Header (auto light/dark)
+ * <Logo className="h-10 w-auto" inverted />         // Footer (inverted for dark bg)
  */
 
 interface LogoProps {
@@ -21,20 +21,20 @@ interface LogoProps {
 }
 
 /**
- * Paper + Saleor combined logo (100x23, aspect ratio ~4.35:1)
+ * Exlynatural logo (640x239, aspect ratio ~2.68:1)
  * Automatically switches between light/dark mode versions.
  *
  * Uses explicit width/height + aspect-ratio to prevent CLS while
  * allowing flexible sizing via className.
  */
-export const Logo = ({ className, ariaLabel = "Paper by Saleor", inverted = false }: LogoProps) => {
+export const Logo = ({ className, ariaLabel = "Exlynatural", inverted = false }: LogoProps) => {
 	// When inverted, swap the light/dark mode logic
 	const lightModeLogo = inverted ? "/logo-dark.svg" : "/logo.svg";
 	const darkModeLogo = inverted ? "/logo.svg" : "/logo-dark.svg";
 
 	// Base styles: preserve aspect ratio to prevent CLS
-	// Height classes (e.g., h-7) will work correctly with w-auto
-	const baseStyles = "aspect-[100/23]";
+	// Height classes (e.g., h-10) will work correctly with w-auto
+	const baseStyles = "aspect-[640/239]";
 
 	return (
 		<>
@@ -43,8 +43,8 @@ export const Logo = ({ className, ariaLabel = "Paper by Saleor", inverted = fals
 			<img
 				src={lightModeLogo}
 				alt={ariaLabel}
-				width={100}
-				height={23}
+				width={640}
+				height={239}
 				className={`dark:hidden ${baseStyles} ${className ?? ""}`}
 			/>
 			{/* Dark mode */}
@@ -52,8 +52,8 @@ export const Logo = ({ className, ariaLabel = "Paper by Saleor", inverted = fals
 			<img
 				src={darkModeLogo}
 				alt={ariaLabel}
-				width={100}
-				height={23}
+				width={640}
+				height={239}
 				className={`hidden dark:block ${baseStyles} ${className ?? ""}`}
 			/>
 		</>

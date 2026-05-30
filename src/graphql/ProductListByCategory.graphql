@@ -17,6 +17,10 @@ query ProductListByCategory(
 			url
 			alt
 		}
+		metadata {
+			key
+			value
+		}
 		products(first: $first, after: $after, channel: $channel, sortBy: $sortBy, filter: $filter) {
 			edges {
 				node {

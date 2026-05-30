@@ -1,8 +1,11 @@
 "use client";
 
 import { Suspense } from "react";
-import { FilterBar, ProductGrid, useProductFilters, type ProductCardData } from "@/ui/components/plp";
 import { Pagination } from "@/ui/components/pagination";
+import { FilterBar } from "@/ui/components/plp/filter-bar";
+import { ProductGrid } from "@/ui/components/plp/product-grid";
+import type { ProductCardData } from "@/ui/components/plp/product-card";
+import { useProductFilters } from "@/ui/components/plp/use-product-filters";
 
 interface ProductsPageClientProps {
 	products: ProductCardData[];

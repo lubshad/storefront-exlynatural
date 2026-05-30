@@ -6,9 +6,18 @@ import { executePublicGraphQL } from "@/lib/graphql";
 import { CACHE_PROFILES, applyCacheProfile } from "@/lib/cache-manifest";
 import { getPaginatedListVariables } from "@/lib/utils";
 import { parseEditorJSToText } from "@/lib/editorjs";
-import { CategoryHero, transformToProductCard } from "@/ui/components/plp";
+import { CategoryHero } from "@/ui/components/plp/category-hero";
+import { extractResponsiveHeroImages } from "@/ui/components/plp/responsive-hero-utils";
+import { transformToProductCard } from "@/ui/components/plp/utils";
 import { buildSortVariables, buildFilterVariables } from "@/ui/components/plp/filter-utils";
 import { CollectionPageClient } from "./client";
+
+function getMetadataValue(
+	metadata: ReadonlyArray<{ key: string; value: string }> | null | undefined,
+	key: string,
+) {
+	return metadata?.find((entry) => entry.key === key)?.value;
+}
 
 async function getCollectionData(slug: string, channel: string) {
 	"use cache";
@@ -78,6 +87,8 @@ async function CollectionContent({
 	}
 
 	const plainDescription = parseEditorJSToText(collection.description);
+	const heroTitle = getMetadataValue(collection.metadata, "hero_title") || collection.name;
+	const heroSubtitle = getMetadataValue(collection.metadata, "hero_subtitle") || plainDescription;
 
 	const breadcrumbs = [
 		{ label: "Home", href: `/${params.channel}` },
@@ -87,9 +98,10 @@ async function CollectionContent({
 	return (
 		<>
 			<CategoryHero
-				title={collection.name}
-				description={plainDescription}
+				title={heroTitle}
+				description={heroSubtitle}
 				backgroundImage={collection.backgroundImage?.url}
+				responsiveImages={extractResponsiveHeroImages(collection.metadata, collection.backgroundImage?.url)}
 				breadcrumbs={breadcrumbs}
 			/>
 			<Suspense fallback={<ProductsGridSkeleton />}>

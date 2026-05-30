@@ -67,10 +67,10 @@ export async function Footer({ channel }: { channel: string }) {
 					{/* Brand */}
 					<div className="col-span-2 md:col-span-1">
 						<Link href={`/${channel}`} prefetch={false} className="mb-4 inline-block">
-							<Logo className="h-7 w-auto" inverted />
+							<Logo className="h-10 w-auto" inverted />
 						</Link>
 						<p className="mt-4 max-w-xs text-sm leading-relaxed text-neutral-400">
-							Minimal design, maximum impact. Thoughtfully crafted essentials for everyday comfort.
+							Natural wellness essentials crafted for everyday care.
 						</p>
 					</div>
 

@@ -16,7 +16,7 @@ import { type NextRequest } from "next/server";
 export async function GET(request: NextRequest) {
 	const { searchParams } = request.nextUrl;
 
-	const title = searchParams.get("title") || "Saleor Store";
+	const title = searchParams.get("title") || "Exlynatural";
 	const subtitle = searchParams.get("subtitle") || "";
 	const price = searchParams.get("price") || "";
 
@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
 					flexDirection: "column",
 					alignItems: "center",
 					justifyContent: "center",
-					backgroundColor: "#FAF9F7", // --background
+					backgroundColor: "#F7FAF4", // --background
 					fontFamily: "system-ui, sans-serif",
 				}}
 			>
@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
 					style={{
 						position: "absolute",
 						inset: 0,
-						backgroundImage: "radial-gradient(circle at 25px 25px, #E5E4DF 2px, transparent 0)",
+						backgroundImage: "radial-gradient(circle at 25px 25px, #DCE9D8 2px, transparent 0)",
 						backgroundSize: "50px 50px",
 						opacity: 0.5,
 					}}
@@ -65,15 +65,19 @@ export async function GET(request: NextRequest) {
 							marginBottom: "40px",
 							fontSize: "24px",
 							fontWeight: "600",
-							color: "#1A1A1A",
-							letterSpacing: "-0.02em",
+							color: "#287E45",
+							letterSpacing: "0",
 						}}
 					>
-						{/* Simple sparkle icon */}
+						{/* Simple leaf icon */}
 						<svg width="32" height="32" viewBox="0 0 24 24" fill="none" style={{ marginRight: "12px" }}>
-							<path d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z" fill="#1A1A1A" />
+							<path
+								d="M20 3C12.5 3.4 6.5 8.2 5 15.7c4.8.7 11.1-1.8 13.4-7.6C19.1 6.4 19.6 4.7 20 3Z"
+								fill="#83C94F"
+							/>
+							<path d="M4 21C7.5 14 12.3 9.6 18 6.4" stroke="#287E45" strokeWidth="2" strokeLinecap="round" />
 						</svg>
-						saleor
+						Exlynatural
 					</div>
 
 					{/* Title */}
@@ -81,7 +85,7 @@ export async function GET(request: NextRequest) {
 						style={{
 							fontSize: "64px",
 							fontWeight: "700",
-							color: "#1A1A1A",
+							color: "#287E45",
 							lineHeight: 1.1,
 							letterSpacing: "-0.03em",
 							marginBottom: subtitle || price ? "20px" : "0",
@@ -95,7 +99,7 @@ export async function GET(request: NextRequest) {
 						<div
 							style={{
 								fontSize: "28px",
-								color: "#737373", // --muted-foreground
+								color: "#5E7864", // --muted-foreground
 								marginBottom: price ? "20px" : "0",
 							}}
 						>
@@ -109,11 +113,11 @@ export async function GET(request: NextRequest) {
 							style={{
 								fontSize: "36px",
 								fontWeight: "600",
-								color: "#1A1A1A",
+								color: "#287E45",
 								backgroundColor: "#FFFFFF",
 								padding: "12px 32px",
 								borderRadius: "8px",
-								border: "2px solid #E5E4DF",
+								border: "2px solid #DCE9D8",
 							}}
 						>
 							{price}

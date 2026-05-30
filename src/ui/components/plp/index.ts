@@ -1,4 +1,5 @@
-export { CategoryHero } from "./category-hero";
+export { CategoryHero, type ResponsiveHeroImages } from "./category-hero";
+export { extractResponsiveHeroImages, extractPageBanner } from "./responsive-hero-utils";
 export { PageHeader } from "./page-header";
 export { ProductCard, type ProductCardData } from "./product-card";
 export { ProductGrid } from "./product-grid";

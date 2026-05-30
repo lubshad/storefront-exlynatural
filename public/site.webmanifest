@@ -1,6 +1,6 @@
 {
-	"name": "Paper",
-	"short_name": "Paper",
+	"name": "Exlynatural",
+	"short_name": "Exlynatural",
 	"icons": [
 		{
 			"src": "/android-chrome-192x192.png",
@@ -13,7 +13,7 @@
 			"type": "image/png"
 		}
 	],
-	"theme_color": "#FAF9F7",
-	"background_color": "#FAF9F7",
+	"theme_color": "#F7FAF4",
+	"background_color": "#F7FAF4",
 	"display": "standalone"
 }

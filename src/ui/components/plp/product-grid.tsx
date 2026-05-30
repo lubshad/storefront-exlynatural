@@ -1,3 +1,5 @@
+"use client";
+
 import { ProductCard, type ProductCardData } from "./product-card";
 
 interface ProductGridProps {
