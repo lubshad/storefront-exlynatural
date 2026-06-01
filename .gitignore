@@ -5,6 +5,7 @@ gql/
 src/checkout/graphql/generated/
 
 .env
+deploy.env
 
 # dependencies
 /node_modules
