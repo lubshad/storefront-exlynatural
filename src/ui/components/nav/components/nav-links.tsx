@@ -47,9 +47,15 @@ export const NavLinks = async ({ channel }: { channel: string }) => {
 				}
 				if (item.url) {
 					return (
-						<Link key={item.id} href={item.url} prefetch={false}>
-							{item.name}
-						</Link>
+						<li key={item.id} className="inline-flex">
+							<Link
+								href={item.url}
+								prefetch={false}
+								className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+							>
+								{item.name}
+							</Link>
+						</li>
 					);
 				}
 				return null;
