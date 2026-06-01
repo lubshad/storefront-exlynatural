@@ -7,6 +7,49 @@ const HERO_METADATA_KEYS = {
 	hero_mobile_retina: "mobileRetina",
 } as const;
 
+function normalizeMediaBaseUrl(url: string): string {
+	return url.endsWith("/") ? url : `${url}/`;
+}
+
+function extractMediaBaseUrlFromImageUrl(imageUrl?: string | null): string | undefined {
+	if (!imageUrl?.startsWith("http://") && !imageUrl?.startsWith("https://")) {
+		return undefined;
+	}
+
+	const mediaIndex = imageUrl.indexOf("/media/");
+	return mediaIndex === -1 ? undefined : imageUrl.substring(0, mediaIndex + 7);
+}
+
+function getConfiguredMediaBaseUrl(): string | undefined {
+	if (process.env.NEXT_PUBLIC_SALEOR_MEDIA_URL) {
+		return normalizeMediaBaseUrl(process.env.NEXT_PUBLIC_SALEOR_MEDIA_URL);
+	}
+
+	if (process.env.NEXT_PUBLIC_SALEOR_API_URL) {
+		try {
+			const apiUrl = new URL(process.env.NEXT_PUBLIC_SALEOR_API_URL);
+			return `${apiUrl.origin}/media/`;
+		} catch {
+			// Ignore invalid configuration and use the development fallback below.
+		}
+	}
+
+	return undefined;
+}
+
+function resolveMediaUrl(value: string, mediaBaseUrl?: string): string | undefined {
+	if (value.startsWith("http://") || value.startsWith("https://")) {
+		return value;
+	}
+
+	if (!mediaBaseUrl) {
+		return undefined;
+	}
+
+	const cleanPath = value.startsWith("/") ? value.substring(1) : value;
+	return `${mediaBaseUrl}${cleanPath}`;
+}
+
 /**
  * Extract responsive hero image URLs from Saleor collection/category metadata.
  * Returns undefined if no responsive images are found, so the component
@@ -18,15 +61,7 @@ export function extractResponsiveHeroImages(
 ): ResponsiveHeroImages | undefined {
 	if (!metadata?.length) return undefined;
 
-	// Extract base media URL dynamically from the absolute backgroundImage URL if possible.
-	// Otherwise, fallback to the default Saleor Core local media URL.
-	let mediaBaseUrl = "http://localhost:8000/media/";
-	if (backgroundImage && (backgroundImage.startsWith("http://") || backgroundImage.startsWith("https://"))) {
-		const mediaIndex = backgroundImage.indexOf("/media/");
-		if (mediaIndex !== -1) {
-			mediaBaseUrl = backgroundImage.substring(0, mediaIndex + 7); // e.g. "http://localhost:8000/media/"
-		}
-	}
+	const mediaBaseUrl = extractMediaBaseUrlFromImageUrl(backgroundImage) ?? getConfiguredMediaBaseUrl();
 
 	const result: Record<string, string> = {};
 	let found = false;
@@ -34,15 +69,11 @@ export function extractResponsiveHeroImages(
 	for (const { key, value } of metadata) {
 		const prop = HERO_METADATA_KEYS[key as keyof typeof HERO_METADATA_KEYS];
 		if (prop && value) {
-			// If the metadata value is a relative path, prepend the base media URL
-			let imageUrl = value;
-			if (!imageUrl.startsWith("http://") && !imageUrl.startsWith("https://")) {
-				// Normalize any leading slashes
-				const cleanPath = imageUrl.startsWith("/") ? imageUrl.substring(1) : imageUrl;
-				imageUrl = mediaBaseUrl + cleanPath;
+			const imageUrl = resolveMediaUrl(value, mediaBaseUrl);
+			if (imageUrl) {
+				result[prop] = imageUrl;
+				found = true;
 			}
-			result[prop] = imageUrl;
-			found = true;
 		}
 	}
 
@@ -58,19 +89,20 @@ export function extractPageBanner(
 ) {
 	if (!metadata?.length) return undefined;
 
-	const mediaBaseUrl = "http://localhost:8000/media/";
+	const mediaBaseUrl = getConfiguredMediaBaseUrl();
 	const result: Record<string, string> = {};
 	let backgroundImage = "";
 
 	for (const { key, value } of metadata) {
 		if (key === "background_image" && value) {
-			const cleanPath = value.startsWith("/") ? value.substring(1) : value;
-			backgroundImage = mediaBaseUrl + cleanPath;
+			backgroundImage = resolveMediaUrl(value, mediaBaseUrl) ?? "";
 		}
 		const prop = HERO_METADATA_KEYS[key as keyof typeof HERO_METADATA_KEYS];
 		if (prop && value) {
-			const cleanPath = value.startsWith("/") ? value.substring(1) : value;
-			result[prop] = mediaBaseUrl + cleanPath;
+			const imageUrl = resolveMediaUrl(value, mediaBaseUrl);
+			if (imageUrl) {
+				result[prop] = imageUrl;
+			}
 		}
 	}
 

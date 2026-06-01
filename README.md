@@ -250,6 +250,7 @@ NEXT_PUBLIC_SALEOR_API_URL=https://your-instance.saleor.cloud/graphql/
 
 # Optional
 NEXT_PUBLIC_STOREFRONT_URL=   # For canonical URLs and OG images
+NEXT_PUBLIC_SALEOR_MEDIA_URL= # For relative banner/hero image metadata
 REVALIDATE_SECRET=            # Manual cache invalidation
 SALEOR_WEBHOOK_SECRET=        # Webhook HMAC verification
 SALEOR_APP_TOKEN=             # For channels query
