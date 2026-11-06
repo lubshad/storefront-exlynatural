@@ -328,7 +328,7 @@ mutation checkoutRemovePromoCode(
 }
 
 mutation checkoutComplete($checkoutId: ID!) {
-	checkoutComplete(id: $checkoutId) {
+	checkoutComplete(id: $checkoutId, metadata: [{ key: "payment_method", value: "cash_on_delivery" }]) {
 		errors {
 			...CheckoutErrorFragment
 		}

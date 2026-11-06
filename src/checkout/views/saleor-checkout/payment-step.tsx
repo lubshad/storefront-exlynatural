@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, type FC } from "react";
+import { useState, useEffect, useCallback, useRef, type FC } from "react";
 import { ChevronLeft, AlertCircle } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/ui/components/ui/button";
@@ -10,28 +10,18 @@ import {
 	type CountryCode,
 	type AddressFragment,
 	useCheckoutBillingAddressUpdateMutation,
-	useTransactionInitializeMutation,
 	useCheckoutCompleteMutation,
 } from "@/checkout/graphql";
 import { useCheckout } from "@/checkout/hooks/use-checkout";
 import { useUser } from "@/checkout/hooks/use-user";
 import { getAddressInputData } from "@/checkout/components/address-form/utils";
-// Dummy payment gateway ID (from Saleor Dummy Payment app)
-const dummyGatewayId = "mirumee.payments.dummy";
 import { createQueryString } from "@/checkout/lib/utils/url";
 import { localeConfig } from "@/config/locale";
 import { MobileStickyAction } from "./mobile-sticky-action";
 import { getStepNumber } from "./flow";
 
 // Extracted reusable components
-import {
-	PaymentMethodSelector,
-	BillingAddressSection,
-	type PaymentMethodType,
-	type CardData,
-	type BillingAddressData,
-	isCardDataValid,
-} from "@/checkout/components/payment";
+import { BillingAddressSection, type BillingAddressData } from "@/checkout/components/payment";
 import { LoadingSpinner } from "@/checkout/ui-kit/loading-spinner";
 import { formatMoneyWithFallback } from "@/checkout/lib/utils/money";
 
@@ -45,7 +35,6 @@ interface PaymentStepProps {
 export const PaymentStep: FC<PaymentStepProps> = ({
 	checkout: initialCheckout,
 	onBack,
-	onComplete,
 	onGoToInformation,
 }) => {
 	const router = useRouter();
@@ -60,16 +49,6 @@ export const PaymentStep: FC<PaymentStepProps> = ({
 	// For digital products, there's no shipping address, so can't use "same as billing"
 	const isShippingRequired = checkout.isShippingRequired;
 	const hasShippingAddress = !!checkout.shippingAddress;
-
-	// Payment method state
-	const [paymentMethod, setPaymentMethod] = useState<PaymentMethodType>("card");
-	// Lazy initialization - object only created once on mount
-	const [cardData, setCardData] = useState<CardData>(() => ({
-		cardNumber: "",
-		expiry: "",
-		cvc: "",
-		nameOnCard: "",
-	}));
 
 	// Billing address state
 	const [sameAsBilling, setSameAsBilling] = useState(isShippingRequired && hasShippingAddress);
@@ -113,17 +92,12 @@ export const PaymentStep: FC<PaymentStepProps> = ({
 	}, [checkout.billingAddress]);
 
 	const [isProcessing, setIsProcessing] = useState(false);
+	const submitting = useRef(false);
 	const [errors, setErrors] = useState<Record<string, string>>({});
 
 	// Mutations
 	const [, updateBillingAddress] = useCheckoutBillingAddressUpdateMutation();
-	const [transactionState, transactionInitialize] = useTransactionInitializeMutation();
 	const [completeState, checkoutComplete] = useCheckoutCompleteMutation();
-
-	// Check for available payment gateways
-	const availableGateways = checkout.availablePaymentGateways || [];
-	const hasDummyGateway = availableGateways.some((g) => g.id === dummyGatewayId);
-	const hasRealGateway = availableGateways.some((g) => g.id !== dummyGatewayId);
 
 	const shippingAddress = checkout.shippingAddress;
 
@@ -152,6 +126,8 @@ export const PaymentStep: FC<PaymentStepProps> = ({
 			if (event) {
 				event.preventDefault();
 			}
+			if (submitting.current) return;
+			submitting.current = true;
 
 			setErrors({});
 
@@ -227,91 +203,39 @@ export const PaymentStep: FC<PaymentStepProps> = ({
 						phone: shippingAddress.phone || "",
 						countryCode: shippingAddress.country?.code as CountryCode,
 					});
-					await updateBillingAddress({
+					const result = await updateBillingAddress({
 						checkoutId: checkout.id,
 						billingAddress: addressInput,
 						languageCode: localeConfig.graphqlLanguageCode,
 					});
+					if (result.error || result.data?.checkoutBillingAddressUpdate?.errors.length) {
+						setErrors({ payment: "Could not save your billing address. Please try again." });
+						return;
+					}
 				}
 
-				// Process payment using available gateway
-				if (hasDummyGateway) {
-					const checkoutId = checkout.id;
-
-					const initResult = await transactionInitialize({
-						checkoutId,
-						paymentGateway: {
-							id: dummyGatewayId,
-							data: {
-								event: {
-									includePspReference: true,
-									type: "CHARGE_SUCCESS",
-								},
-							},
-						},
-					});
-
-					if (initResult.error) {
-						console.error("Payment initialization error:", initResult.error);
-						setErrors({ streetAddress1: "Payment failed. Please try again." });
-						return;
-					}
-
-					const transactionErrors = initResult.data?.transactionInitialize?.errors;
-					if (transactionErrors?.length) {
-						console.error("Transaction errors:", transactionErrors);
-						setErrors({ streetAddress1: transactionErrors[0].message || "Payment failed" });
-						return;
-					}
-
-					// Complete the checkout and create the order
-					const completeResult = await checkoutComplete({
-						checkoutId,
-					});
-
-					if (completeResult.error) {
-						console.error("Checkout complete error:", completeResult.error);
-						setErrors({ streetAddress1: "Failed to complete order. Please try again." });
-						return;
-					}
-
-					const completeErrors = completeResult.data?.checkoutComplete?.errors;
-					if (completeErrors?.length) {
-						const errorDetails = completeErrors.map((e) => `${e.field}: ${e.message} (${e.code})`).join(", ");
-						console.error("Checkout complete errors:", errorDetails, completeErrors);
-						// Show a more descriptive error
-						const firstError = completeErrors[0];
-						const errorMessage = firstError.message || firstError.code || "Failed to complete order";
-						setErrors({ payment: errorMessage });
-						return;
-					}
-
-					// Redirect to order confirmation
-					const order = completeResult.data?.checkoutComplete?.order;
-					if (order) {
-						const newQuery = createQueryString(searchParams, { orderId: order.id });
-						router.replace(`?${newQuery}`, { scroll: false });
-						return;
-					}
-				} else if (!hasRealGateway) {
-					// No payment gateway configured
-					setErrors({
-						streetAddress1:
-							"No payment gateway configured. Please contact support or configure a payment app in Saleor.",
-					});
-					return;
-				} else {
-					// Real payment gateway - this UI doesn't support it yet
-					// For now, show an error
-					setErrors({
-						streetAddress1:
-							"This checkout UI currently only supports test payments. Please use the standard checkout for real payments.",
-					});
+				// COD creates an unpaid order. Never initialize or simulate a charge.
+				const result = await checkoutComplete({ checkoutId: checkout.id });
+				if (result.error) {
+					setErrors({ payment: "Could not place your order. Please try again." });
 					return;
 				}
-
-				onComplete();
+				const completeErrors = result.data?.checkoutComplete?.errors;
+				if (completeErrors?.length) {
+					setErrors({ payment: completeErrors[0].message || "Could not place your order." });
+					return;
+				}
+				const order = result.data?.checkoutComplete?.order;
+				if (!order) {
+					setErrors({ payment: "Order confirmation was not received. Please check before retrying." });
+					return;
+				}
+				const newQuery = createQueryString(searchParams, { orderId: order.id });
+				router.replace(`?${newQuery}`, { scroll: false });
+			} catch {
+				setErrors({ payment: "Could not place your order. Please check your connection and try again." });
 			} finally {
+				submitting.current = false;
 				setIsProcessing(false);
 			}
 		},
@@ -322,72 +246,33 @@ export const PaymentStep: FC<PaymentStepProps> = ({
 			user?.addresses,
 			shippingAddress,
 			checkout.id,
-			hasDummyGateway,
-			hasRealGateway,
 			updateBillingAddress,
-			transactionInitialize,
 			checkoutComplete,
-			onComplete,
 			searchParams,
 			router,
 		],
 	);
 
-	const isCardValid = isCardDataValid(cardData);
-
-	const isPaymentProcessing = transactionState.fetching || completeState.fetching;
-
-	const isLoading = isProcessing || isPaymentProcessing;
-	const buttonText = isLoading
-		? completeState.fetching
-			? "Creating order..."
-			: "Processing payment..."
-		: `Pay ${totalStr}`;
-
-	const isDisabled =
-		isLoading ||
-		(!hasDummyGateway && !hasRealGateway) ||
-		(paymentMethod === "card" && !hasDummyGateway && !isCardValid);
+	const isLoading = isProcessing || completeState.fetching;
+	const buttonText = isLoading ? "Placing order..." : `Place order · ${totalStr}`;
+	const isDisabled = isLoading;
 
 	return (
 		<form className="space-y-8" onSubmit={handleSubmit}>
 			{/* Summary Context */}
 			<CheckoutSummaryContext checkout={checkout} rows={summaryRows} onGoToStep={handleGoToStep} />
 
-			{/* No Payment Gateway Warning */}
-			{!hasDummyGateway && !hasRealGateway && (
-				<div className="flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 p-4">
-					<AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
-					<div>
-						<p className="font-medium text-amber-800">No payment gateway configured</p>
-						<p className="mt-1 text-sm text-amber-700">
-							To accept payments, install a payment app (like Saleor Dummy Payment for testing, or
-							Stripe/Adyen for production) from the Saleor Dashboard.
-						</p>
-					</div>
+			<section className="space-y-4" aria-labelledby="cod-payment-heading">
+				<h2 id="cod-payment-heading" className="text-lg font-semibold">
+					Payment
+				</h2>
+				<div className="rounded-lg border border-border bg-card p-4">
+					<p className="font-medium">Cash on Delivery</p>
+					<p className="mt-1 text-sm text-muted-foreground">
+						Pay {totalStr} in cash when your order is delivered. No online payment is required.
+					</p>
 				</div>
-			)}
-
-			{/* Test Mode Indicator */}
-			{hasDummyGateway && !hasRealGateway && (
-				<div className="flex items-start gap-3 rounded-lg border border-blue-200 bg-blue-50 p-4">
-					<AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-blue-600" />
-					<div>
-						<p className="font-medium text-blue-800">Test Mode</p>
-						<p className="mt-1 text-sm text-blue-700">
-							Using test payment gateway. No real charges will be made.
-						</p>
-					</div>
-				</div>
-			)}
-
-			{/* Payment Method */}
-			<PaymentMethodSelector
-				value={paymentMethod}
-				onChange={setPaymentMethod}
-				cardData={cardData}
-				onCardDataChange={setCardData}
-			/>
+			</section>
 
 			{/* Billing Address */}
 			<BillingAddressSection
@@ -407,7 +292,7 @@ export const PaymentStep: FC<PaymentStepProps> = ({
 				<div className="border-destructive/50 bg-destructive/10 flex items-start gap-3 rounded-lg border p-4">
 					<AlertCircle className="h-5 w-5 flex-shrink-0 text-destructive" />
 					<div>
-						<p className="font-medium text-destructive">Payment failed</p>
+						<p className="font-medium text-destructive">Could not place order</p>
 						<p className="text-destructive/80 text-sm">{errors.payment}</p>
 					</div>
 				</div>
@@ -439,11 +324,10 @@ export const PaymentStep: FC<PaymentStepProps> = ({
 				step={getStepNumber("PAYMENT", isShippingRequired)}
 				isShippingRequired={isShippingRequired}
 				type="submit"
-				onAction={handleSubmit}
 				isLoading={isLoading}
 				disabled={isDisabled}
 				total={totalStr}
-				loadingText={completeState.fetching ? "Creating order..." : "Processing payment..."}
+				loadingText="Placing order..."
 			/>
 		</form>
 	);

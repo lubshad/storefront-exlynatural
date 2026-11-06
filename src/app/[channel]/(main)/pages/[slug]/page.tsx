@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { type Metadata } from "next";
 import edjsHTML from "editorjs-html";
 import xss from "xss";
@@ -22,7 +23,15 @@ export const generateMetadata = async (props: { params: Promise<{ slug: string }
 	};
 };
 
-export default async function Page(props: { params: Promise<{ slug: string }> }) {
+export default function Page(props: { params: Promise<{ slug: string }> }) {
+	return (
+		<Suspense fallback={<div className="mx-auto max-w-7xl p-8 pb-16" role="status">Loading page...</div>}>
+			<PageContent {...props} />
+		</Suspense>
+	);
+}
+
+async function PageContent(props: { params: Promise<{ slug: string }> }) {
 	const params = await props.params;
 	const result = await executePublicGraphQL(PageGetBySlugDocument, {
 		variables: { slug: params.slug },
